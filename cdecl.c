@@ -94,25 +94,56 @@ void read_to_first_identifier(void) {
 
 void deal_with_function_args(void) {
   // read past closing ')' print out "function returning"
+  while(this.type != ')')
+    gettoken();
+  gettoken();
+  printf("function returning ");
 }
 
 void deal_with_arrays(void) {
   // while you've got "[size]" print it out and read past it
+  while(this.type == '[') {
+    printf("array ");
+
+    gettoken();
+    if(isdigit(this.string[0])) {
+      printf("0..%d ", atoi(this.string)-1);
+      gettoken();
+    }
+    gettoken();
+    printf("of ");
+  }
 }
 
 void deal_with_any_pointers(void) {
   // while you've got "*" on the stack print "pointer to" and pop it
+  while(stack[top].type == '*')
+    printf("%s ", pop.string);
 }
 
 void deal_with_declarator(void) {
   // if this.type is '[' deal_with_arrays
+  if(this.type == '[') deal_with_arrays();
   // if this.type is '(' deal_with_function_args
+  if(this.type == '(') deal_with_function_args();
+
   // deal_with_any_pointers
+  deal_with_any_pointers();
+
   // while there's stuff on the stack
-  // if it's a '('
-  // pop it and gettoken; it should be the closing ')'
-  // deal_with_declarator
-  // else pop it and print it
+  while(top >= 0) {
+    // if it's a '('
+    if(stack[top].type == '(') {
+      // pop it and gettoken; it should be the closing ')'
+      pop;
+      gettoken();
+      // deal_with_declarator
+      deal_with_declarator();
+    } else {
+      // else pop it and print it
+      printf("%s ", pop.string);
+    }
+  }
 }
 
 int main(void) {
